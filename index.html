@@ -20,8 +20,8 @@ input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--b);bord
 textarea{resize:vertical;min-height:60px}
 .btn{background:var(--p);color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif}
 .btn2{background:#fff;color:var(--p);border:1px solid var(--p);padding:9px 14px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif}
-.btn-danger{background:#dc2626;color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif}
-.btn-primary{background:#2563eb;color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif}
+.btn-danger{background:#dc2626;color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600}
+.btn-primary{background:#2563eb;color:#fff;border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600}
 .btn-sm{padding:4px 10px;font-size:11px}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th,td{padding:9px;border-bottom:1px solid var(--b);text-align:right}
@@ -60,7 +60,7 @@ h3{font-size:15px}
 </header>
 
 <div class="wrap">
-  <!-- ===== CARTE CRÉER / MODIFIER ===== -->
+  <!-- CARTE CRÉER / MODIFIER -->
   <div class="card">
     <h3 style="margin:0 12px">צור / ערוך לקוח</h3>
     <div class="grid">
@@ -89,7 +89,7 @@ h3{font-size:15px}
     <p style="font-size:11px;color:var(--m);margin-top:8px">💡 להגדלה: השאר את "סכום התחלתי" ריק ומלא "הוסף לסכום". לדוגמה: 500 קיים + 500 נוסף = 1000 בהיסטוריה</p>
   </div>
 
-  <!-- ===== CARTE CLIENTS ===== -->
+  <!-- CARTE CLIENTS -->
   <div class="card">
     <h3 style="margin:0 0 10px">לקוחות רשומים</h3>
     <div style="overflow:auto">
@@ -100,7 +100,7 @@ h3{font-size:15px}
     </div>
   </div>
 
-  <!-- ===== CARTE GESTION ACCÈS ===== -->
+  <!-- CARTE GESTION ACCÈS -->
   <div class="card">
     <h3 style="margin:0 12px">חסום או בטל חסימת גישת לקוח</h3>
     <label>בחר גישת לקוח. <span style="color:var(--r)">נדרש</span></label>
@@ -109,7 +109,7 @@ h3{font-size:15px}
     <button class="btn" id="unblockBtn" style="width:100%;background:#059669">🔓 בטל חסימת לקוח</button>
   </div>
 
-  <!-- ===== CARTE ACTIONS AVANCÉES ===== -->
+  <!-- CARTE ACTIONS AVANCÉES -->
   <div class="card">
     <h3 style="margin:0 12px">פעולות על גישת לקוח</h3>
     <label>בחר גישת לקוח. <span style="color:var(--r)">נדרש</span></label>
@@ -123,20 +123,19 @@ h3{font-size:15px}
   </div>
 </div>
 
-<!-- ===== MODAL SESSIONS ===== -->
+<!-- MODAL SESSIONS -->
 <div id="sessionsModal" class="modal">
   <div class="modal-content">
     <button class="modal-close" onclick="closeSessionsModal()">✕</button>
-    <h3><i class="fas fa-wifi"></i> מפגשים פעילים</h3>
+    <h3>📱 מפגשים פעילים</h3>
     <div id="sessionsList"></div>
     <div class="modal-actions">
-      <button class="btn-danger btn-sm" onclick="forceDisconnect()"><i class="fas fa-power-off"></i> נתק את כל המכשירים</button>
+      <button class="btn-danger btn-sm" onclick="forceDisconnect()">🔌 נתק את כל המכשירים</button>
       <button class="btn2 btn-sm" onclick="closeSessionsModal()">סגור</button>
     </div>
   </div>
 </div>
 
-<!-- ========== SCRIPTS (MODIFIED) ========== -->
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {getDatabase, ref, push, onValue, remove, update, get, set} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
@@ -162,14 +161,12 @@ let currentClientIdForSessions = null;
 const $ = id => document.getElementById(id);
 $('pct').oninput = () => $('pv').textContent = $('pct').value;
 
-// ===== GÉNÉRATEUR D'ID =====
-function genId(prefix){
-  return prefix + Math.floor(1000000000 + Math.random() * 9000000);
-}
+// ===== GÉNÉRATEUR ID =====
+function genId(prefix){ return prefix + Math.floor(1000000000 + Math.random() * 9000000); }
 
 // ===== AJOUT TRANSACTION DE CRÉDIT =====
-async function addCreditTransaction(clientId, amount, devise = '₪'){
-  if(amount <= 0) return;
+async function addCreditTransaction(clientId, amount, devise = '₪') {
+  if (amount <= 0) return;
   const now = new Date();
   const tx = {
     id: genId('CR'),
@@ -187,10 +184,10 @@ async function addCreditTransaction(clientId, amount, devise = '₪'){
   return tx;
 }
 
-// ===== CHARGEMENT DES DONNÉES =====
+// ===== CHARGEMENT =====
 onValue(clientsRef, snap => {
   data = snap.val() || {};
-  if(Object.keys(data).length === 0){
+  if (Object.keys(data).length === 0) {
     push(clientsRef, {
       nom: 'ישראל ישראלי',
       email: 'avogodans61@gmail.com',
@@ -213,10 +210,10 @@ onValue(clientsRef, snap => {
   updateAllStatuses();
 });
 
-// ===== RENDU TABLEAU =====
+// ===== RENDU =====
 function getThemeBadge(theme){
-  const colors = {purple:'#6A0DAD',blue:'#2563eb',yellow:'#eab308'};
-  const names = {purple:'סגול',blue:'כחול',yellow:'צהוב'};
+  const colors = {purple:'#6A0DAD', blue:'#2563eb', yellow:'#eab308'};
+  const names = {purple:'סגול', blue:'כחול', yellow:'צהוב'};
   return `<span class="badge-theme" style="background:${colors[theme]||colors.purple}">${names[theme]||'סגול'}</span>`;
 }
 
@@ -229,7 +226,7 @@ function render(){
       <td><b>${v.nom}</b><br><span style="color:#6b7280;font-size:10px">${v.email}${blockedBadge}${notifBadge}</span></td>
       <td><span class="badge">${v.pin}</span></td>
       <td>${Number(v.montant).toLocaleString('he-IL')} ${v.devise||'₪'}</td>
-      <td id="status-${id}"><span class="badge-offline">מתנתק</span></td>
+      <td id="status-${id}"><span class="badge-offline">טוען...</span></td>
       <td>${getThemeBadge(v.theme||'purple')}</td>
       <td>${v.code}</td>
       <td>${v.pct}%</td>
@@ -248,16 +245,16 @@ function render(){
 
 // ===== MISE À JOUR DES STATUTS =====
 async function updateAllStatuses(){
-  for(const id of Object.keys(data)){
+  for (const id of Object.keys(data)) {
     const snap = await get(ref(db, 'clients/' + id + '/sessions'));
     let active = 0;
-    if(snap.exists()){
+    if (snap.exists()) {
       const sessions = Object.values(snap.val());
       active = sessions.filter(s => s.connected === true).length;
     }
     const cell = document.getElementById('status-'+id);
-    if(cell){
-      if(active > 0){
+    if (cell) {
+      if (active > 0) {
         cell.innerHTML = `<span class="badge-online">🟢 ${active} מכשיר${active > 1 ? 'ים' : ''} מחובר${active > 1 ? 'ים' : ''}</span>`;
       } else {
         cell.innerHTML = `<span class="badge-offline">🔴 מנותק</span>`;
@@ -265,39 +262,32 @@ async function updateAllStatuses(){
     }
   }
 }
-// Écouter les changements de sessions pour chaque client
+// Écouter les changements de sessions
 Object.keys(data).forEach(id => {
   const sessionsRef = ref(db, 'clients/' + id + '/sessions');
   onValue(sessionsRef, () => updateAllStatuses());
 });
 
-// ===== SAUVEGARDE (avec création transaction) =====
+// ===== SAUVEGARDE (avec transaction) =====
 $('saveBtn').onclick = async () => {
   const addAmt = Number($('addMontant').value)||0;
   let finalMontant = Number($('montant').value)||0;
   let creditTransaction = null;
   let oldMontant = 0;
 
-  if(editId && data[editId]){
-    oldMontant = Number(data[editId].montant)||0;
-  }
+  if (editId && data[editId]) oldMontant = Number(data[editId].montant)||0;
 
-  if(addAmt > 0){
-    if(editId && data[editId]){
-      finalMontant = oldMontant + addAmt;
-    } else {
-      finalMontant = addAmt;
-    }
+  if (addAmt > 0) {
+    if (editId && data[editId]) finalMontant = oldMontant + addAmt;
+    else finalMontant = addAmt;
     creditTransaction = { amount: addAmt, devise: $('devise').value };
-  } else if(editId && data[editId]){
-    if(finalMontant > oldMontant){
+  } else if (editId && data[editId]) {
+    if (finalMontant > oldMontant) {
       const diff = finalMontant - oldMontant;
       creditTransaction = { amount: diff, devise: $('devise').value };
     }
   } else {
-    if(finalMontant > 0){
-      creditTransaction = { amount: finalMontant, devise: $('devise').value };
-    }
+    if (finalMontant > 0) creditTransaction = { amount: finalMontant, devise: $('devise').value };
   }
 
   const o = {
@@ -317,16 +307,16 @@ $('saveBtn').onclick = async () => {
     updated: Date.now()
   };
 
-  if(!o.nom || !o.email || !o.pin){
+  if (!o.nom || !o.email || !o.pin) {
     alert('שם, אימייל ו-PIN חובה');
     return;
   }
 
   let clientId = editId;
 
-  if(editId){
+  if (editId) {
     await update(ref(db, 'clients/' + editId), o);
-    if(creditTransaction){
+    if (creditTransaction) {
       await addCreditTransaction(editId, creditTransaction.amount, creditTransaction.devise);
       await update(ref(db, 'clients/' + editId), { lastCreditAmount: finalMontant });
     }
@@ -334,7 +324,7 @@ $('saveBtn').onclick = async () => {
   } else {
     const newRef = push(clientsRef, {...o, created: Date.now(), lastCreditAmount: finalMontant});
     clientId = newRef.key;
-    if(creditTransaction && creditTransaction.amount > 0){
+    if (creditTransaction && creditTransaction.amount > 0) {
       await addCreditTransaction(clientId, creditTransaction.amount, creditTransaction.devise);
     }
     alert('לקוח חדש נוצר. ערכה: ' + o.theme);
@@ -344,7 +334,6 @@ $('saveBtn').onclick = async () => {
 };
 
 $('resetBtn').onclick = resetForm;
-
 function resetForm(){
   ['nom','email','pin','montant','addMontant','code','msg','pays','adresse','tel','notification'].forEach(i=>$(i).value='');
   $('devise').value='₪'; $('theme').value='purple'; $('pct').value=100; $('pv').textContent='100'; editId=null;
@@ -364,7 +353,7 @@ window.editClient = (id) => {
 
 // ===== SUPPRESSION =====
 window.delClient = (id) => {
-  if(confirm('למחוק לקוח זה? הוא לא יוכל להתחבר יותר.')){
+  if (confirm('למחוק לקוח זה? הוא לא יוכל להתחבר יותר.')) {
     remove(ref(db, 'clients/'+id));
   }
 };
@@ -372,35 +361,35 @@ window.delClient = (id) => {
 // ===== LISTES DÉROULANTES =====
 function refreshLists(){
   const opts = Object.entries(data).map(([id,v])=>`<option value="${id}">${v.nom} - ${v.email} (${v.devise||'₪'})${v.blocked?' [חסום]':''}${v.notification?' 🔔':''}</option>`).join('');
-  if($('clientAccess')) $('clientAccess').innerHTML = opts;
-  if($('clientAction')) $('clientAction').innerHTML = opts;
+  if ($('clientAccess')) $('clientAccess').innerHTML = opts;
+  if ($('clientAction')) $('clientAction').innerHTML = opts;
 }
 
 // ===== BLOQUER / DÉBLOQUER =====
-$('blockBtn').onclick = ()=>{
+$('blockBtn').onclick = () => {
   const id = $('clientAccess').value;
-  if(!id) return alert('בחר לקוח');
+  if (!id) return alert('בחר לקוח');
   update(ref(db,'clients/'+id), {blocked:true, updated:Date.now()});
   alert('הגישה נחסמה - הוחל מיידית ב-FLOA BK');
 };
-$('unblockBtn').onclick = ()=>{
+$('unblockBtn').onclick = () => {
   const id = $('clientAccess').value;
-  if(!id) return alert('בחר לקוח');
+  if (!id) return alert('בחר לקוח');
   update(ref(db,'clients/'+id), {blocked:false, updated:Date.now()});
   alert('החסימה בוטלה');
 };
 
 // ===== ACTIONS AVANCÉES =====
-$('actionBtn').onclick = ()=>{
+$('actionBtn').onclick = () => {
   const id = $('clientAction').value;
   const action = $('actionType').value;
-  if(!id) return alert('בחר לקוח');
+  if (!id) return alert('בחר לקוח');
 
-  if(action === 'אפס היסטוריית העברות'){
+  if (action === 'אפס היסטוריית העברות') {
     update(ref(db,'clients/'+id), {montant:0, lastCreditAmount:0, historyReset:Date.now()});
     set(ref(db,'clients/'+id+'/history'), null);
     alert('ההיסטוריה אופסה - נמחקה ב-FLOA BK');
-  } else if(action === 'מחק התראה'){
+  } else if (action === 'מחק התראה') {
     update(ref(db,'clients/'+id), {notification:'', updated:Date.now()});
     alert('ההתראה נמחקה - הפעמון יציג "אין התראות"');
   }
@@ -418,15 +407,15 @@ window.closeSessionsModal = () => {
   currentClientIdForSessions = null;
 };
 
-async function loadSessions(clientId){
+async function loadSessions(clientId) {
   const container = document.getElementById('sessionsList');
   const snap = await get(ref(db, 'clients/' + clientId + '/sessions'));
-  if(!snap.exists()){
+  if (!snap.exists()) {
     container.innerHTML = '<p style="color:var(--m)">אין מפגשים רשומים.</p>';
     return;
   }
   const sessions = Object.entries(snap.val());
-  if(sessions.length === 0){
+  if (sessions.length === 0) {
     container.innerHTML = '<p style="color:var(--m)">אין מפגשים.</p>';
     return;
   }
@@ -450,11 +439,11 @@ async function loadSessions(clientId){
 }
 
 window.forceDisconnect = async () => {
-  if(!currentClientIdForSessions) return;
-  if(!confirm('לנתק את כל המכשירים של לקוח זה?')) return;
+  if (!currentClientIdForSessions) return;
+  if (!confirm('לנתק את כל המכשירים של לקוח זה?')) return;
 
   const snap = await get(ref(db, 'clients/' + currentClientIdForSessions + '/sessions'));
-  if(snap.exists()){
+  if (snap.exists()) {
     const sessions = snap.val();
     const updates = {};
     Object.keys(sessions).forEach(key => {
@@ -469,13 +458,11 @@ window.forceDisconnect = async () => {
 
 // Fermer la modale en cliquant à l'extérieur
 document.getElementById('sessionsModal').addEventListener('click', (e) => {
-  if(e.target === e.currentTarget) closeSessionsModal();
+  if (e.target === e.currentTarget) closeSessionsModal();
 });
 
 // ===== INIT =====
 resetForm();
-
-// Exposer les fonctions pour les boutons onclick
 window.editClient = editClient;
 window.delClient = delClient;
 window.openSessions = openSessions;
