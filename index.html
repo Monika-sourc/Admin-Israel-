@@ -142,9 +142,57 @@
     th, td { padding: 8px 10px; }
     .action-btns button { font-size: 10px; padding: 3px 8px; }
   }
+
+  /* ===== LOGIN SCREEN ===== */
+  #loginScreen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 24px; padding: 20px; }
+  #loginScreen.hidden { display: none; }
+  .login-box { background: #fff; border-radius: var(--radius); padding: 48px 40px; max-width: 400px; width: 100%; box-shadow: var(--shadow-hover); border: 1px solid var(--border); }
+  .login-box h2 { font-size: 24px; font-weight: 700; color: var(--p); text-align: center; margin-bottom: 8px; }
+  .login-box p { color: var(--text-secondary); text-align: center; margin-bottom: 24px; font-size: 14px; }
+  .login-box .field { margin-bottom: 16px; }
+  .login-box .field label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 4px; }
+  .login-box .field input { width: 100%; padding: 16px 18px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 16px; font-family: inherit; background: #FAFBFC; transition: var(--transition); color: var(--text); }
+  .login-box .field input:focus { outline: none; border-color: var(--p); box-shadow: 0 0 0 4px rgba(109,40,217,0.08); background: #fff; }
+  .login-box .btn { width: 100%; justify-content: center; padding: 16px; font-size: 16px; margin-top: 8px; }
+  .login-error { color: #DC2626; font-size: 13px; font-weight: 500; text-align: center; margin-top: 8px; display: none; }
+
+  #adminApp { display: none; }
+  #adminApp.visible { display: block; }
+
+  .admin-header .btn-logout { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; transition: var(--transition); font-family: inherit; }
+  .admin-header .btn-logout:hover { background: rgba(255,255,255,0.3); }
+
+  .copy-field { display:flex; align-items:center; gap:10px; background:#f8fafc; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; transition:var(--transition); }
+  .copy-field:hover { border-color:var(--p); background:#fff; }
+  .copy-field .label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; margin-bottom:3px; }
+  .copy-field .value { font-size:14px; font-weight:600; color:var(--text); word-break:break-all; flex:1; }
+  .copy-field .copy-btn { background:none; border:none; color:var(--p); cursor:pointer; padding:8px 12px; border-radius:6px; font-size:13px; transition:var(--transition); flex-shrink:0; }
+  .copy-field .copy-btn:hover { background:var(--p-light); }
+  .copy-field input { border:none; background:transparent; padding:4px 0; font-size:14px; font-weight:600; color:var(--text); width:100%; font-family:inherit; }
+  .copy-field input:focus { outline:none; box-shadow:none; }
+  .copy-field.editing { background:#fff; border-color:var(--p); box-shadow:0 0 0 3px rgba(109,40,217,0.08); padding:14px 16px; }
+  .copy-field.editing input { background:#fff; }
+  .client-name-link { color:var(--p); cursor:pointer; text-decoration:none; }
+  .client-name-link:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
+    <!-- ========== ÉCRAN DE CONNEXION ========== -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2><i class="fas fa-shield-halved" style="color:var(--p);margin-right:10px;"></i>Accès restreint</h2>
+            <p>Veuillez saisir le mot de passe administrateur</p>
+            <div class="field">
+                <label for="passwordInput">Mot de passe</label>
+                <input id="passwordInput" type="password" placeholder="••••••••" autofocus>
+            </div>
+            <button id="loginBtn" class="btn"><i class="fas fa-arrow-right-to-bracket"></i> Se connecter</button>
+            <div id="loginError" class="login-error">Mot de passe incorrect. Réessayez.</div>
+        </div>
+    </div>
+
+    <!-- ========== ADMIN ========== -->
+    <div id="adminApp">
 
 <header class="admin-header">
   <div class="brand">
@@ -156,6 +204,7 @@
   </div>
   <div class="badge-version">
     <i class="fas fa-circle-check"></i> v2.0 · connecté
+    <button id="logoutBtn" class="btn-logout"><i class="fas fa-right-from-bracket"></i> Déconnexion</button>
   </div>
 </header>
 
@@ -182,6 +231,11 @@
       <div class="field">
         <label><i class="fas fa-lock"></i> Code PIN (6 chiffres)</label>
         <input id="pin" maxlength="6" placeholder="123456">
+      </div>
+      <div class="field">
+        <label><i class="fas fa-building-columns"></i> Nom de l'expéditeur du virement</label>
+        <input id="senderName" placeholder="בנק">
+        <span class="hint">Nom affiché comme expéditeur des virements crédités sur le compte client</span>
       </div>
       <div class="field">
         <label><i class="fas fa-money-bill-1"></i> Montant initial</label>
@@ -213,8 +267,13 @@
         <input id="code" placeholder="ACT123">
       </div>
       <div class="field">
+        <label><i class="fas fa-ban" style="color:#DC2626;"></i> Code d'annulation du virement</label>
+        <input id="refundCode" placeholder="Ex: CAN789">
+        <span class="hint" style="color:#DC2626;">Saisissez un code unique pour chaque client.</span>
+      </div>
+      <div class="field grid-full">
         <label><i class="fas fa-message"></i> Message après activation</label>
-        <input id="msg" placeholder="העברה אושרה ✓">
+        <textarea id="msg" placeholder="העברה אושרה ✓" style="min-height:160px; resize:vertical;"></textarea>
       </div>
       <div class="field">
         <label><i class="fas fa-flag"></i> Pays</label>
@@ -386,43 +445,68 @@
     </div>
   </div>
 
-  <!-- ===== CARTE : REMBOURSEMENT (avec envoi email) ===== -->
-  <div class="card">
-    <div class="card-header">
-      <i class="fas fa-hand-holding-dollar"></i>
-      <h3>Remboursement client</h3>
-      <span class="badge-count" style="background:#D1FAE5;color:#065F46;">Crédit + Email</span>
+
+</div>
+
     </div>
-    <div class="grid-2">
-      <div class="field grid-full">
-        <label><i class="fas fa-user-check"></i> Client à rembourser</label>
-        <select id="refundClientSelect"></select>
-      </div>
-      <div class="field">
-        <label><i class="fas fa-coins"></i> Montant (₪)</label>
-        <input id="refundAmount" type="number" step="0.01" placeholder="0.00">
-      </div>
-      <div class="field">
-        <label><i class="fas fa-user"></i> Expéditeur (nom)</label>
-        <input id="refundSender" placeholder="Nom de la personne qui rembourse">
-      </div>
-      <div class="field">
-        <label><i class="fas fa-credit-card"></i> IBAN de l'expéditeur</label>
-        <input id="refundIban" placeholder="IL XX XXXX XXXX XXXX XXXX XXX">
-      </div>
-      <div class="field grid-full">
-        <label><i class="fas fa-calendar-clock"></i> Date et heure (optionnel)</label>
-        <input id="refundDateTime" type="datetime-local">
-        <span class="hint">Laissez vide pour utiliser l'heure actuelle (Israël).</span>
-      </div>
+
+<!-- ========== MODAL FICHE CLIENT ========== -->
+<div id="clientModal" class="modal">
+    <div class="modal-content" style="max-width:700px; padding:0; overflow:hidden;">
+        <div style="background:var(--p); color:#fff; padding:24px 28px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800;">
+                    <i class="fas fa-user" style="color:#fff;"></i>
+                </div>
+                <div>
+                    <div style="font-size:18px; font-weight:700;" id="modalClientName">Client</div>
+                    <div style="font-size:12px; opacity:0.8;" id="modalClientEmail">email</div>
+                </div>
+            </div>
+            <button onclick="closeClientModal()" style="background:rgba(255,255,255,0.15); border:none; color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="padding:28px; max-height:70vh; overflow-y:auto;">
+            <div style="display:flex; gap:14px; margin-bottom:24px; flex-wrap:wrap;">
+                <button class="btn btn-sm" id="editToggleBtn" onclick="toggleEditMode()"><i class="fas fa-pen"></i> Modifier</button>
+                <button class="btn btn-success btn-sm" id="saveClientBtn" onclick="saveClientChanges()" style="display:none;"><i class="fas fa-save"></i> Enregistrer</button>
+                <button class="btn btn-secondary btn-sm" id="cancelEditBtn" onclick="cancelEditMode()" style="display:none;"><i class="fas fa-times"></i> Annuler</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr; gap:14px;" id="clientFields">
+                <!-- Généré dynamiquement -->
+            </div>
+
+            <div style="margin-top:20px; padding:20px; background:#f0fdf4; border-radius:12px; border:1px solid #bbf7d0;">
+                <div style="font-size:12px; font-weight:700; color:#059669; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;"><i class="fas fa-mobile-screen-button" style="margin-right:6px;"></i>Application FLOA IL</div>
+                <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                    <div id="clientAppLinkDisplay" style="flex:1; background:#fff; border:1.5px solid #a7f3d0; border-radius:10px; padding:14px 18px; font-size:14px; font-weight:600; color:#15803d; word-break:break-all;">https://floa-israel.com/</div>
+                    <button id="clientAppCopyBtn" class="btn btn-success btn-sm" onclick="copyToClipboard(document.getElementById('clientAppLinkDisplay').textContent)"><i class="fas fa-copy"></i> Copier</button>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; padding:20px; background:#f8fafc; border-radius:12px; border:1px solid var(--border);">
+                <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;"><i class="fas fa-bell" style="margin-right:6px;"></i>Notification (cloche)</div>
+                <div id="modalNotifDisplay" style="font-size:15px; color:var(--text); line-height:1.7; min-height:120px; padding:8px 0;"></div>
+                <textarea id="modalNotifEdit" style="width:100%; padding:20px 22px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:15px; font-family:inherit; min-height:280px; display:none; margin-top:8px; line-height:1.7;"></textarea>
+            </div>
+
+            <!-- ========== SECTION ENVOI EMAILS ========== -->
+            <div style="margin-top:20px; padding:24px; background:#f5f3ff; border-radius:12px; border:1px solid #ddd6fe;">
+                <div style="font-size:12px; font-weight:700; color:#6A0DAD; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">
+                    <i class="fas fa-paper-plane" style="margin-right:6px;"></i>Envoi d'emails au client
+                </div>
+                <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                    <button class="btn btn-sm" onclick="sendClientCredentials()" id="btnSendCreds">
+                        <i class="fas fa-id-card"></i> Envoyer les identifiants
+                    </button>
+                    <button class="btn btn-success btn-sm" onclick="sendActivationCode()" id="btnSendCode">
+                        <i class="fas fa-key"></i> Envoyer le code d'activation
+                    </button>
+                </div>
+                <p id="emailSendStatus" style="font-size:13px; margin-top:10px; color:#4B5563; min-height:20px;"></p>
+            </div>
+        </div>
     </div>
-    <div class="mt-2">
-      <button class="btn btn-success btn-block" id="refundBtn"><i class="fas fa-money-bill-wave"></i> Rembourser</button>
-    </div>
-    <div class="text-muted text-sm mt-2">
-      <i class="fas fa-info-circle"></i> Le montant sera ajouté au solde du client, une transaction "Zwrot" apparaîtra dans son historique et un email lui sera envoyé.
-    </div>
-  </div>
 </div>
 
 <!-- ========== MODAL SESSIONS ========== -->
@@ -439,7 +523,97 @@
 </div>
 
 <!-- ========== SCRIPTS ========== -->
-<script type="module">
+<script>
+  // ===================================================
+  // AUTHENTIFICATION
+  // ===================================================
+  const PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // admin
+  const SESSION_DURATION = 60 * 60 * 1000;
+
+  const loginScreen = document.getElementById('loginScreen');
+  const adminApp = document.getElementById('adminApp');
+  const passwordInput = document.getElementById('passwordInput');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginError = document.getElementById('loginError');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function checkSession() {
+    const session = localStorage.getItem('vantex_admin_session');
+    if (session) {
+      try {
+        const { timestamp } = JSON.parse(session);
+        if (Date.now() - timestamp < SESSION_DURATION) {
+          showAdmin();
+          return;
+        } else {
+          localStorage.removeItem('vantex_admin_session');
+        }
+      } catch {
+        localStorage.removeItem('vantex_admin_session');
+      }
+    }
+    loginScreen.classList.remove('hidden');
+    adminApp.classList.remove('visible');
+    passwordInput.value = '';
+    loginError.style.display = 'none';
+    passwordInput.focus();
+  }
+
+  function showAdmin() {
+    loginScreen.classList.add('hidden');
+    adminApp.classList.add('visible');
+    initApp();
+  }
+
+  loginBtn.addEventListener('click', async () => {
+    const entered = passwordInput.value.trim();
+    if (!entered) {
+      loginError.style.display = 'block';
+      loginError.textContent = 'Veuillez saisir un mot de passe.';
+      return;
+    }
+    const enteredHash = await hashPassword(entered);
+    if (enteredHash === PASSWORD_HASH) {
+      localStorage.setItem('vantex_admin_session', JSON.stringify({ timestamp: Date.now() }));
+      loginError.style.display = 'none';
+      showAdmin();
+    } else {
+      loginError.style.display = 'block';
+      loginError.textContent = 'Mot de passe incorrect. Réessayez.';
+      passwordInput.value = '';
+      passwordInput.focus();
+    }
+  });
+
+  passwordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loginBtn.click();
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('vantex_admin_session');
+    loginScreen.classList.remove('hidden');
+    adminApp.classList.remove('visible');
+    passwordInput.value = '';
+    loginError.style.display = 'none';
+    passwordInput.focus();
+    location.reload();
+  });
+
+  checkSession();
+
+  let appInitialized = false;
+  function initApp() {
+    if (appInitialized) return;
+    appInitialized = true;
+
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
   import { getDatabase, ref, push, onValue, remove, update, get, set } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
@@ -497,15 +671,17 @@
     return prefix + Math.floor(1000000000 + Math.random() * 9000000);
   }
 
-  async function addCreditTransaction(clientId, amount, devise = '₪') {
+  async function addCreditTransaction(clientId, amount, devise = '₪', senderName = 'בנק') {
     if (amount <= 0) return;
     const now = new Date();
     const tx = {
       id: genId('CR'),
       title: 'העברה שהתקבלה',
-      subtitle: 'בנק',
+      subtitle: senderName,
       amount: amount,
-      beneficiary: 'בנק',
+      beneficiary: senderName,
+      sender: senderName,
+      senderName: senderName,
       iban: '-',
       devise: devise,
       date: now.toLocaleDateString('he-IL'),
@@ -524,16 +700,20 @@
         nom: 'ישראל ישראלי',
         email: 'demo@floa.com',
         pin: '123456',
+        senderName: 'בנק',
         montant: 10000,
         devise: '₪',
         theme: 'purple',
         code: 'ACT123',
+        refundCode: 'CAN789',
         msg: 'ההעברה אושרה ✓',
         pct: 100,
         pays: 'ישראל',
         adresse: 'רחוב הרצל 10',
         tel: '+972 50 123 4567',
         notification: 'ברוכים הבאים ל-FLOA BK!',
+        bannerMessage: '',
+        bannerRead: true,
         created: Date.now(),
         lastCreditAmount: 10000
       });
@@ -553,11 +733,12 @@
     const rows = Object.entries(data).map(([id, v]) => {
       const blockedBadge = v.blocked ? `<span class="badge-blocked"><i class="fas fa-lock"></i> BLOQUÉ</span>` : '';
       const notifBadge = v.notification ? `<span class="badge-notif">🔔</span>` : '';
+      const bannerBadge = v.bannerMessage ? `<span class="badge-notif" style="background:#D1FAE5;color:#065F46;">📢</span>` : '';
       return `
       <tr id="row-${id}">
         <td>
-          <b>${v.nom}</b><br>
-          <span style="color:#6b7280;font-size:11px;">${v.email} ${blockedBadge} ${notifBadge}</span>
+          <b class="client-name-link" onclick="openClientModal('${id}')" title="Ouvrir la fiche client">${v.nom}</b><br>
+          <span style="color:#6b7280;font-size:11px;">${v.email} ${blockedBadge} ${notifBadge} ${bannerBadge}</span>
         </td>
         <td><span class="badge">${v.pin}</span></td>
         <td>${Number(v.montant).toLocaleString('he-IL')} ${v.devise || '₪'}</td>
@@ -633,14 +814,37 @@
       }
     }
 
+    let montantIncreased = false;
+    let increaseAmount = 0;
+
+    if (editId && data[editId]) {
+      if (addAmt > 0) {
+        montantIncreased = true;
+        increaseAmount = addAmt;
+      } else if (finalMontant > oldMontant) {
+        montantIncreased = true;
+        increaseAmount = finalMontant - oldMontant;
+      }
+    } else {
+      if (addAmt > 0) {
+        montantIncreased = true;
+        increaseAmount = addAmt;
+      } else if (finalMontant > 0) {
+        montantIncreased = true;
+        increaseAmount = finalMontant;
+      }
+    }
+
     const o = {
       nom: $('nom').value.trim(),
       email: $('email').value.trim().toLowerCase(),
       pin: $('pin').value.trim(),
+      senderName: $('senderName').value.trim() || 'בנק',
       montant: finalMontant,
       devise: $('devise').value,
       theme: $('theme').value,
       code: $('code').value.trim(),
+      refundCode: $('refundCode').value.trim(),
       msg: $('msg').value.trim(),
       pct: Number($('pct').value),
       pays: $('pays').value.trim(),
@@ -649,6 +853,23 @@
       notification: $('notification').value.trim(),
       updated: Date.now()
     };
+
+    // === GÉNÉRATION AUTOMATIQUE DE LA BANNIÈRE ===
+    if (montantIncreased && increaseAmount > 0 && o.nom) {
+      const formattedAmount = increaseAmount.toLocaleString('he-IL') + ' ' + o.devise;
+      const sender = o.senderName || 'בנק';
+      o.bannerMessage = `שלום ${o.nom}, קיבלת העברה מ${sender} בסכום ${formattedAmount}.`;
+      o.bannerRead = false;
+      console.log('✅ Bannière générée pour le client:', o.nom);
+    } else {
+      if (editId && data[editId] && data[editId].bannerMessage) {
+        o.bannerMessage = data[editId].bannerMessage;
+        o.bannerRead = data[editId].bannerRead;
+      } else {
+        o.bannerMessage = '';
+        o.bannerRead = true;
+      }
+    }
 
     if (!o.nom || !o.email || !o.pin) {
       showAlert('⚠️ Nom, Email et PIN sont obligatoires.', 'error');
@@ -659,16 +880,18 @@
 
     if (editId) {
       await update(ref(db, 'clients/' + editId), o);
+      const senderNameEdit = data[editId]?.senderName || 'בנק';
       if (creditTransaction) {
-        await addCreditTransaction(editId, creditTransaction.amount, creditTransaction.devise);
+        await addCreditTransaction(editId, creditTransaction.amount, creditTransaction.devise, senderNameEdit);
         await update(ref(db, 'clients/' + editId), { lastCreditAmount: finalMontant });
       }
       showAlert(`✅ Client mis à jour. Nouveau solde : ${finalMontant} ${o.devise}.`, 'success');
     } else {
       const newRef = push(clientsRef, { ...o, created: Date.now(), lastCreditAmount: finalMontant });
       clientId = newRef.key;
+      const senderNameNew = o.senderName || 'בנק';
       if (creditTransaction && creditTransaction.amount > 0) {
-        await addCreditTransaction(clientId, creditTransaction.amount, creditTransaction.devise);
+        await addCreditTransaction(clientId, creditTransaction.amount, creditTransaction.devise, senderNameNew);
       }
       showAlert('✅ Nouveau client créé avec succès. Thème: ' + o.theme, 'success');
     }
@@ -679,7 +902,7 @@
   $('resetBtn').onclick = resetForm;
 
   function resetForm() {
-    ['nom', 'email', 'pin', 'montant', 'addMontant', 'code', 'msg', 'pays', 'adresse', 'tel', 'notification'].forEach(i => $(i).value = '');
+    ['nom', 'email', 'pin', 'senderName', 'montant', 'addMontant', 'code', 'refundCode', 'msg', 'pays', 'adresse', 'tel', 'notification'].forEach(i => $(i).value = '');
     $('devise').value = '₪';
     $('theme').value = 'purple';
     $('pct').value = 100;
@@ -695,10 +918,12 @@
     $('nom').value = v.nom;
     $('email').value = v.email;
     $('pin').value = v.pin;
+    $('senderName').value = v.senderName || 'בנק';
     $('montant').value = v.montant;
     $('devise').value = v.devise || '₪';
     $('theme').value = v.theme || 'purple';
     $('code').value = v.code;
+    $('refundCode').value = v.refundCode || '';
     $('msg').value = v.msg;
     $('pct').value = v.pct;
     pvDisplay.textContent = v.pct + '%';
@@ -722,7 +947,7 @@
   // ===== LISTES DÉROULANTES =====
   function refreshLists() {
     const opts = Object.entries(data).map(([id, v]) =>
-      `<option value="${id}">${v.nom} - ${v.email} (${v.devise || '₪'})${v.blocked ? ' 🔒 BLOQUÉ' : ''}${v.notification ? ' 🔔' : ''}</option>`
+      `<option value="${id}">${v.nom} - ${v.email} (${v.devise || '₪'})${v.blocked ? ' 🔒 BLOQUÉ' : ''}${v.notification ? ' 🔔' : ''}${v.bannerMessage ? ' 📢' : ''}</option>`
     ).join('');
     if ($('clientAccess')) $('clientAccess').innerHTML = opts;
     if ($('clientAction')) $('clientAction').innerHTML = opts;
@@ -779,100 +1004,6 @@
     const clientId = $('clientBankSelect').value;
     if (clientId) loadBankData(clientId);
     showAlert('🔄 Formulaire réinitialisé.', 'info');
-  };
-
-  // ===== REMBOURSEMENT AVEC EMAIL =====
-  function refreshRefundClientSelect() {
-    const select = document.getElementById('refundClientSelect');
-    const opts = Object.entries(data).map(([id, v]) =>
-      `<option value="${id}">${v.nom} - ${v.email} (${v.devise || '₪'})</option>`
-    ).join('');
-    select.innerHTML = opts;
-  }
-
-  $('refundBtn').onclick = async () => {
-    const clientId = $('refundClientSelect').value;
-    if (!clientId) { showAlert('⚠️ Veuillez sélectionner un client.', 'error'); return; }
-
-    const amount = parseFloat($('refundAmount').value);
-    if (!amount || amount <= 0) { showAlert('⚠️ Montant invalide.', 'error'); return; }
-
-    const sender = $('refundSender').value.trim();
-    if (!sender) { showAlert('⚠️ Expéditeur requis.', 'error'); return; }
-
-    const iban = $('refundIban').value.trim();
-    if (!iban) { showAlert('⚠️ IBAN requis.', 'error'); return; }
-
-    let dateTimeInput = $('refundDateTime').value;
-    let dateStr, timeStr, timestamp;
-    if (dateTimeInput) {
-      const d = new Date(dateTimeInput);
-      if (isNaN(d.getTime())) { showAlert('⚠️ Date invalide.', 'error'); return; }
-      dateStr = d.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      timeStr = d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-      timestamp = d.getTime();
-    } else {
-      const now = new Date();
-      const ilNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' }));
-      dateStr = ilNow.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      timeStr = ilNow.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-      timestamp = ilNow.getTime();
-    }
-
-    const transaction = {
-      id: genId('CR'),
-      title: 'Zwrot', // sera interprété comme "החזר" dans l'app
-      subtitle: sender,
-      amount: amount,
-      beneficiary: sender,
-      iban: iban,
-      devise: '₪',
-      date: dateStr,
-      time: timeStr,
-      timestamp: timestamp
-    };
-
-    try {
-      await push(ref(db, 'clients/' + clientId + '/history'), transaction);
-      const clientSnap = await get(ref(db, 'clients/' + clientId));
-      if (clientSnap.exists()) {
-        const clientData = clientSnap.val();
-        const currentMontant = Number(clientData.montant) || 0;
-        const newMontant = currentMontant + amount;
-        await update(ref(db, 'clients/' + clientId), { montant: newMontant });
-
-        // Envoyer l'email
-        try {
-          await fetch('https://votre-api-israel.onrender.com/api/inscription', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              nom: clientData.nom,
-              email: clientData.email,
-              montant: `${amount} ₪`,
-              beneficiaire: sender,
-              compte: iban,
-              reference: transaction.id,
-              type: 'admin_refund',
-              success: false,
-              pct: 0
-            })
-          });
-          console.log('Email de remboursement envoyé.');
-        } catch (emailErr) { console.error(emailErr); }
-
-        showAlert(`✅ Remboursement de ${amount} ₪ pour ${clientData.nom}. Email envoyé.`, 'success');
-        $('refundAmount').value = '';
-        $('refundSender').value = '';
-        $('refundIban').value = '';
-        $('refundDateTime').value = '';
-      } else {
-        showAlert('❌ Client introuvable.', 'error');
-      }
-    } catch (err) {
-      console.error(err);
-      showAlert('❌ Erreur lors du remboursement.', 'error');
-    }
   };
 
   // ===== BLOQUER / DÉBLOQUER =====
@@ -976,6 +1107,331 @@
   window.forceDisconnect = forceDisconnect;
 
   setInterval(updateAllStatuses, 5000);
+
+  // ===== FICHE CLIENT =====
+  let currentClientId = null;
+  let editMode = false;
+  let originalData = {};
+
+  const fieldConfig = [
+    { key: 'nom', label: 'Nom complet', icon: 'fa-user' },
+    { key: 'email', label: 'Email', icon: 'fa-envelope' },
+    { key: 'pin', label: 'Code PIN', icon: 'fa-lock' },
+    { key: 'senderName', label: "Nom de l'expéditeur du virement", icon: 'fa-building-columns' },
+    { key: 'montant', label: 'Montant', icon: 'fa-money-bill-1', type: 'number' },
+    { key: 'devise', label: 'Devise', icon: 'fa-coins' },
+    { key: 'code', label: 'Code activation', icon: 'fa-key' },
+    { key: 'refundCode', label: 'Code annulation', icon: 'fa-ban' },
+    { key: 'msg', label: 'Message', icon: 'fa-message' },
+    { key: 'pct', label: 'Pourcentage (%)', icon: 'fa-gauge-high', type: 'number' },
+    { key: 'pays', label: 'Pays', icon: 'fa-flag' },
+    { key: 'adresse', label: 'Adresse', icon: 'fa-location-dot' },
+    { key: 'tel', label: 'Téléphone', icon: 'fa-phone' },
+    { key: 'theme', label: 'Thème', icon: 'fa-palette' },
+    { key: 'bannerMessage', label: 'Message bannière (auto)', icon: 'fa-bullhorn' }
+  ];
+
+  window.openClientModal = async (id) => {
+    currentClientId = id;
+    editMode = false;
+    const v = data[id];
+    if (!v) return;
+
+    document.getElementById('modalClientName').textContent = v.nom || 'Client';
+    document.getElementById('modalClientEmail').textContent = v.email || '';
+    const appLink = 'https://floa-israel.com/?id=' + encodeURIComponent(id) + '&nom=' + encodeURIComponent(v.nom || '') + '&theme=' + encodeURIComponent(v.theme || 'purple');
+    document.getElementById('clientAppLinkDisplay').textContent = appLink;
+    document.getElementById('modalNotifDisplay').textContent = v.notification || 'Aucune notification';
+    document.getElementById('modalNotifEdit').value = v.notification || '';
+
+    renderClientFields(v, false);
+    updateEditButtons();
+
+    document.getElementById('clientModal').classList.add('active');
+  };
+
+  window.closeClientModal = () => {
+    document.getElementById('clientModal').classList.remove('active');
+    currentClientId = null;
+    editMode = false;
+  };
+
+  window.toggleEditMode = () => {
+    if (!currentClientId || !data[currentClientId]) return;
+    editMode = true;
+    originalData = { ...data[currentClientId] };
+    renderClientFields(data[currentClientId], true);
+    document.getElementById('modalNotifDisplay').style.display = 'none';
+    document.getElementById('modalNotifEdit').style.display = 'block';
+    updateEditButtons();
+  };
+
+  window.cancelEditMode = () => {
+    if (!currentClientId) return;
+    editMode = false;
+    renderClientFields(data[currentClientId], false);
+    document.getElementById('modalNotifDisplay').style.display = 'block';
+    document.getElementById('modalNotifEdit').style.display = 'none';
+    document.getElementById('modalNotifEdit').value = data[currentClientId].notification || '';
+    updateEditButtons();
+  };
+
+  window.saveClientChanges = async () => {
+    if (!currentClientId) return;
+    const updates = {};
+
+    fieldConfig.forEach(f => {
+      const input = document.getElementById('edit-' + f.key);
+      if (input) {
+        let val = input.value.trim();
+        if (f.type === 'number') val = Number(val) || 0;
+        updates[f.key] = val;
+      }
+    });
+
+    const notifVal = document.getElementById('modalNotifEdit').value.trim();
+    updates.notification = notifVal;
+    updates.updated = Date.now();
+
+    await update(ref(db, 'clients/' + currentClientId), updates);
+
+    editMode = false;
+    document.getElementById('modalNotifDisplay').textContent = notifVal || 'Aucune notification';
+    document.getElementById('modalNotifDisplay').style.display = 'block';
+    document.getElementById('modalNotifEdit').style.display = 'none';
+    updateEditButtons();
+    showAlert('✅ Modifications enregistrées avec succès.', 'success');
+  };
+
+  function renderClientFields(v, editing) {
+    const container = document.getElementById('clientFields');
+    let html = '';
+    fieldConfig.forEach(f => {
+      const val = v[f.key] !== undefined ? v[f.key] : '';
+      if (editing) {
+        html += `
+          <div class="copy-field editing">
+            <div style="flex:1;">
+              <div class="label"><i class="fas ${f.icon}" style="margin-right:4px;"></i>${f.label}</div>
+              ${f.key === 'msg' || f.key === 'bannerMessage' ? `<textarea id="edit-${f.key}" style="width:100%;min-height:140px;padding:16px 18px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;resize:vertical;line-height:1.6;">${val}</textarea>` : `<input type="${f.type || 'text'}" id="edit-${f.key}" value="${val}" />`}
+            </div>
+          </div>`;
+      } else {
+        html += `
+          <div class="copy-field" ${f.key === 'msg' || f.key === 'bannerMessage' ? 'style="min-height:120px;align-items:flex-start;padding:14px 16px;"' : ''}>
+            <div style="flex:1; min-width:0;">
+              <div class="label"><i class="fas ${f.icon}" style="margin-right:4px;"></i>${f.label}</div>
+              <div class="value" ${f.key === 'msg' || f.key === 'bannerMessage' ? 'style="min-height:80px;white-space:pre-wrap;line-height:1.6;"' : ''}>${val || '<span style="color:#9ca3af;">—</span>'}</div>
+            </div>
+            <button class="copy-btn" onclick="copyToClipboard('${String(val).replace(/'/g, "\'")}')" title="Copier">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>`;
+      }
+    });
+    container.innerHTML = html;
+  }
+
+  function updateEditButtons() {
+    document.getElementById('editToggleBtn').style.display = editMode ? 'none' : 'inline-flex';
+    document.getElementById('saveClientBtn').style.display = editMode ? 'inline-flex' : 'none';
+    document.getElementById('cancelEditBtn').style.display = editMode ? 'inline-flex' : 'none';
+  }
+
+  window.copyToClipboard = (text) => {
+    navigator.clipboard.writeText(String(text)).then(() => {
+      showAlert('✅ Copié dans le presse-papiers', 'success');
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = String(text);
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showAlert('✅ Copié dans le presse-papiers', 'success');
+    });
+  };
+
+  document.getElementById('clientModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeClientModal();
+  });
+
+  // ===== ENVOI D'EMAILS VIA API ZENPAY =====
+  const API_URL = 'https://getzenpay-email-api.onrender.com/api/send-welcome';
+  const API_KEY = 'GETZENPAY_2026_SECRET';
+
+  function generateSuffixe() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 4; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  window.sendClientCredentials = async () => {
+    if (!currentClientId || !data[currentClientId]) return;
+    const v = data[currentClientId];
+    const statusEl = document.getElementById('emailSendStatus');
+    const dest = v.email;
+    if (!dest) {
+      statusEl.innerHTML = '<span style="color:#DC2626;">❌ Ce client n'a pas d'adresse email.</span>';
+      return;
+    }
+
+    const suffixe = generateSuffixe();
+    const name = v.nom || 'Klient';
+    const email = v.email || '---';
+    const pin = v.pin || '---';
+    const theme = v.theme || 'purple';
+    const link = 'https://floa-israel.com/?id=' + encodeURIComponent(currentClientId) + '&nom=' + encodeURIComponent(name) + '&theme=' + encodeURIComponent(theme);
+
+    const sujet = `${suffixe} ${name} - Twoje dane logowania KREDYT FINANSOWY`;
+
+    const htmlContent = `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f7fa; padding:20px;">
+      <tr><td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:10px; overflow:hidden;">
+          <tr><td style="background-color:#6A1B9A; padding:45px 20px; text-align:center;">
+            <span style="font-size:72px; font-weight:bold; color:#ffffff; letter-spacing:2px;">FLOA</span>
+          </td></tr>
+          <tr><td style="padding:35px; color:#333333; font-size:24px; line-height:2.2;">
+            <p style="margin-top:0;">Przyjmijcie nasze serdeczne pozdrowienia, drogi kliencie: <strong>${name}</strong>,</p>
+            <p>Mamy przyjemność potwierdzić Twoją rejestrację na platformie <strong style="color:#28a745; font-style:italic;">KREDYT FINANSOWY</strong>. Dziękujemy za zaufanie i cieszymy się, że możemy Ci towarzyszyć.</p>
+            <p>Aby uzyskać dostęp do swojej przestrzeni klienta online, poniżej znajdują się Twoje dane logowania:</p>
+            <ul style="padding-left:25px; list-style:none;">
+              <li style="margin-bottom:20px;"><strong style="font-size:36px;">✉️ Gmail:</strong> <span style="color:#1a73e8; font-size:48px; font-weight:bold;">${email}</span></li>
+              <li style="margin-bottom:20px;"><strong style="font-size:36px;">🛡️ Kod PIN:</strong> <span style="font-size:48px; font-weight:bold; color:#333;">${pin}</span></li>
+            </ul>
+            <p style="margin-top:30px;">Użyj poniższego przycisku, aby uzyskać dostęp do swojego konta:</p>
+            <div style="text-align:center; margin:40px 0;">
+              <a href="${link}" target="_blank" style="background-color:#28a745; color:#ffffff; text-decoration:none; padding:24px 52px; border-radius:35px; font-weight:bold; font-size:26px; display:inline-block;">Dostęp do mojego konta →</a>
+            </div>
+            <p>Pozdrawiamy,<br><strong style="font-size:30px; color:#28a745; font-style:italic;">KREDYT FINANSOWY</strong></p>
+            <hr style="border:none; border-top:1px solid #e0e0e0; margin:35px 0;">
+            <p style="font-size:18px; color:#777777;"><strong>Zastrzeżenie:</strong><br>Informacje zawarte w tym e-mailu oraz we wszystkich plikach przesyłanych razem z nim są przeznaczone wyłącznie dla adresata i mogą zawierać informacje poufne lub uprzywilejowane.</p>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>`;
+
+    const textContent = `Szanowny/a ${name},\n\nPrzyjmijcie nasze serdeczne pozdrowienia.\n\nMamy przyjemność potwierdzić Twoją rejestrację na platformie KREDYT FINANSOWY.\n\nTwoje dane logowania:\nGmail: ${email}\nKod PIN: ${pin}\n\nDostęp do konta: ${link}\n\nPozdrawiamy,\nKREDYT FINANSOWY`;
+
+    statusEl.innerHTML = '<span style="color:#2563EB;">⏳ Wysyłanie identifiants...</span>';
+    document.getElementById('btnSendCreds').disabled = true;
+    document.getElementById('btnSendCode').disabled = true;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        },
+        body: JSON.stringify({
+          email: dest,
+          prenom: name,
+          sujet: sujet,
+          html: htmlContent,
+          text: textContent
+        })
+      });
+      if (!res.ok) throw new Error('Erreur API ZenPay');
+      statusEl.innerHTML = '<span style="color:#059669;">✅ Identifiants envoyés avec succès !</span>';
+    } catch (err) {
+      console.error(err);
+      statusEl.innerHTML = '<span style="color:#DC2626;">❌ Erreur lors de l'envoi. Réessayez.</span>';
+    } finally {
+      document.getElementById('btnSendCreds').disabled = false;
+      document.getElementById('btnSendCode').disabled = false;
+    }
+  };
+
+  window.sendActivationCode = async () => {
+    if (!currentClientId || !data[currentClientId]) return;
+    const v = data[currentClientId];
+    const statusEl = document.getElementById('emailSendStatus');
+    const dest = v.email;
+    if (!dest) {
+      statusEl.innerHTML = '<span style="color:#DC2626;">❌ Ce client n'a pas d'adresse email.</span>';
+      return;
+    }
+
+    const suffixe = generateSuffixe();
+    const name = v.nom || 'Klient';
+    const code = v.code || '---';
+    const theme = v.theme || 'purple';
+    const link = 'https://floa-israel.com/?id=' + encodeURIComponent(currentClientId) + '&nom=' + encodeURIComponent(name) + '&theme=' + encodeURIComponent(theme);
+
+    const sujet = `${suffixe} ${name} - Twój kod aktywacji przelewu`;
+
+    const htmlContent = `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f7fa; padding:20px;">
+      <tr><td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:10px; overflow:hidden;">
+          <tr><td style="background-color:#6A1B9A; padding:45px 20px; text-align:center;">
+            <span style="font-size:72px; font-weight:bold; color:#ffffff; letter-spacing:2px;">FLOA</span>
+          </td></tr>
+          <tr><td style="padding:35px; color:#333333; font-size:24px; line-height:2.2;">
+            <p style="margin-top:0;">Witaj <strong>${name}</strong>,</p>
+            <p>Otrzymałeś kod aktywacji / walidacji przelewu na platformie <strong style="color:#28a745; font-style:italic;">KREDYT FINANSOWY</strong>.</p>
+            <p style="margin-top:30px; margin-bottom:30px; text-align:center;">
+              <strong style="font-size:36px;">🔑 Kod aktywacji / walidacji przelewu:</strong><br>
+              <span style="font-size:56px; font-weight:bold; color:#d32f2f; letter-spacing:4px; display:inline-block; margin-top:15px; padding:15px 30px; background:#fff5f5; border-radius:12px; border:2px solid #ffcdd2;">${code}</span>
+            </p>
+            <p>Użyj poniższego przycisku, aby uzyskać dostęp do swojego konta:</p>
+            <div style="text-align:center; margin:40px 0;">
+              <a href="${link}" target="_blank" style="background-color:#28a745; color:#ffffff; text-decoration:none; padding:24px 52px; border-radius:35px; font-weight:bold; font-size:26px; display:inline-block;">Dostęp do mojego konta →</a>
+            </div>
+            <p>Pozdrawiamy,<br><strong style="font-size:30px; color:#28a745; font-style:italic;">KREDYT FINANSOWY</strong></p>
+            <hr style="border:none; border-top:1px solid #e0e0e0; margin:35px 0;">
+            <p style="font-size:18px; color:#777777;"><strong>Zastrzeżenie:</strong><br>Informacje zawarte w tym e-mailu oraz we wszystkich plikach przesyłanych razem z nim są przeznaczone wyłącznie dla adresata i mogą zawierać informacje poufne lub uprzywilejowane.</p>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>`;
+
+    const textContent = `Szanowny/a ${name},\n\nOtrzymałeś kod aktywacji / walidacji przelewu na platformie KREDYT FINANSOWY.\n\nKod aktywacji: ${code}\n\nDostęp do konta: ${link}\n\nPozdrawiamy,\nKREDYT FINANSOWY`;
+
+    statusEl.innerHTML = '<span style="color:#2563EB;">⏳ Wysyłanie kodu aktywacji...</span>';
+    document.getElementById('btnSendCreds').disabled = true;
+    document.getElementById('btnSendCode').disabled = true;
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        },
+        body: JSON.stringify({
+          email: dest,
+          prenom: name,
+          sujet: sujet,
+          html: htmlContent,
+          text: textContent
+        })
+      });
+      if (!res.ok) throw new Error('Erreur API ZenPay');
+      statusEl.innerHTML = '<span style="color:#059669;">✅ Code d'activation envoyé avec succès !</span>';
+    } catch (err) {
+      console.error(err);
+      statusEl.innerHTML = '<span style="color:#DC2626;">❌ Erreur lors de l'envoi. Réessayez.</span>';
+    } finally {
+      document.getElementById('btnSendCreds').disabled = false;
+      document.getElementById('btnSendCode').disabled = false;
+    }
+  };
+
+  window.openClientModal = openClientModal;
+  window.closeClientModal = closeClientModal;
+  window.toggleEditMode = toggleEditMode;
+  window.cancelEditMode = cancelEditMode;
+  window.saveClientChanges = saveClientChanges;
+  window.copyToClipboard = copyToClipboard;
+  window.sendClientCredentials = sendClientCredentials;
+  window.sendActivationCode = sendActivationCode;
+}
 </script>
 </body>
 </html>
